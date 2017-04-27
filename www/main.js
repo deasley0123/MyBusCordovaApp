@@ -17,6 +17,26 @@ var pageHistory = new Stack(); // page history - current page at top
 // main thread
 //
 
+// global map variable
+var map;
+
+//	Global Map Marker Variable
+var markers = [];
+
+// variable for displaying routes
+var displayedRoutes = [];
+for(var i = 0; i < busRoutes.length; i++) {
+    displayedRoutes.push([busRoutes[i].route_id,true]);
+}
+
+//global favorites variable
+var favorites;
+
+// global variable to track current bus route/stop
+var bus = {};
+bus.route = 0;
+bus.stop = 0;
+
 // moved to outside function for use with panel
 var menuPageIDs = ["HomePage", "RoutesPage", "MapPage", "SettingsPage"]; // array of menu page IDs -- In the future this list can be retrieved from config.txt
 var menuPages = []; // array of the menu pages
@@ -61,9 +81,8 @@ $(document).ready(onPageLoad);
 //	external panel template
 //
 var $panel = $('<div data-role="panel" id="myPanel" data-position="left" data-display="reveal" data-theme="a"></div>');
-$panel.append('<h2>Menu</h2>');
-$panel.append('<p>Close the panel by pressing the ESC key, by swiping to the left or clicking outside of the panel.</p>');
-$buttonPanelList = $('<ul data-role="listview" data-inset="true" style="min-width:210px;"data-theme="a"></ul>');
+$panel.append('<h2 style="text-align: center;">Menu</h2>');
+$buttonPanelList = $('<ul id="panelList" data-role="listview" data-inset="true" style="min-width:210px;"data-theme="a"></ul>');
 
 //
 //	panel buttons
@@ -86,7 +105,7 @@ updateHistory = function(pageName) {
 			var newLength = pageHistory.length()+1; // avoiding type coercion
 
 			// create new back button
-			$backButton = $('<a href="#' + pageHistory.peek() + '" id="BackButton' + newLength + '" data-icon="back" class="ui-btn-right ui-link ui-btn ui-icon-back ui-btn-icon-left ui-shadow ui-corner-all" data-role="button" role="button">Back</a>');
+			var $backButton = $('<a href="#' + pageHistory.peek() + '" id="BackButton' + newLength + '" data-icon="back" class="ui-btn-right ui-link ui-btn ui-icon-back ui-btn-icon-left ui-shadow ui-corner-all" data-role="button" role="button">Back</a>');
 			$backButton.click( function() {
 
 				// remove current page
@@ -122,11 +141,10 @@ $(document).on("pagebeforeshow ",function(event){
 	}
 });
 
-	//$panel.append($favorites);
-var favorites = new Favorite();
-
 $(document).one('pagebeforecreate', function () {
+
 	$.mobile.pageContainer.prepend($panel);
+	favorites = new Favorite();
 	// Enhances all children of all elements in the set of matched elements.
 	$panel.panel().enhanceWithin();
 });
